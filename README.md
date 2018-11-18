@@ -36,6 +36,10 @@ Fnord is a pattern extractor for obfuscated code.
 # Examples
 
 ```
+python3 fnord.py -f ./test/wraeop.sct --yara --yara-strings 10
+```
+
+```
 python3 fnord.py -f ./test/inv-obf.txt --yara --show-score --show-count -t 1
 ```
 
@@ -46,3 +50,9 @@ python3 fnord.py -f ./test/bash-obfusc.txt --yara --show-score --show-count --ya
 ```
 python3 fnord.py -f ./test/launch-varplus.txt --yara --show-score --show-count --yara-strings 10 -t 2
 ```
+
+# Screenshots
+
+![Fnord Screenshot](https://github.com/Neo23x0/Fnord/blob/master/screens/fnord1.png "Fnord in action")
+
+![Fnord Screenshot](https://github.com/Neo23x0/Fnord/blob/master/screens/fnord2.png "Fnord in action")
