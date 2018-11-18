@@ -26,6 +26,10 @@ Each line in the table contains:
 
 By using the `--yara` flag, Fnord generates an experimental YARA rule. During YARA rule creation it will calculate a score based in the length of the sequence and the number of occurrences (length * occurrences). It will then process each sequences by removing all non-letter characters and comparing them with a list of keywords (case-insensitive) to detect sequences that are more interesting than others. Before writing each string to the rule Fnord calculates a Levenshtein distance and skips sequences that are too similar to sequences that have already been integrated in the rule.
 
+## Status
+
+[Experimental] Fnord was created a few days ago and I have tested it with a handful of samples. My guess is that I'll adjust the defaults in the coming weeks and add some more keywords, filters, scoring options. 
+
 ## Usage
 
 ```
@@ -93,8 +97,8 @@ python3 fnord.py -f ./test/launch-varplus.txt --yara --show-score --show-count -
 
 [yarGen](https://github.com/Neo23x0/yarGen) uses a white-listing approach to filter the strings that are best for the creation of a YARA rule. yarGen applies some regular expressions to adjust scores of strings before creating the YARA rules. But its approach is very different to the method used by Fnord, which calculates the score of the byte sequences based on statistics.
 
-While yarGen is best used for un-obfuscated code. Fnord is for obfuscated code only and should produce much better results than yarGen. 
+While yarGen is best used for un-obfuscated code. Fnord is for obfuscated code only and should produce much better results than yarGen.
 
 ## Contact
 
-Follow me on Twitter for updates @cyb3rops
+Follow me on Twitter for updates [@cyb3rops](https://twitter.com/cyb3rops)
