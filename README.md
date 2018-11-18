@@ -24,7 +24,7 @@ Each line in the table contains:
 
 # 2. YARA Rule Creation
 
-By using the `--yara` flag, Fnord generates an experimental YARA rule. During YARA rule creation it will calculate a score based in the length of the sequence and the number of occurrences (length * occurrences). It will then process each sequences by removing all non-letter characters and comparing them with a list of keywords (case-insensitive) to detect sequences that are more interesting than others. Before writing each string to the rule Fnord calculates a Levenshtein distance and skips sequences that are too similar to sequences that have already been integrated in the rule.  
+By using the `--yara` flag, Fnord generates an experimental YARA rule. During YARA rule creation it will calculate a score based in the length of the sequence and the number of occurrences (length * occurrences). It will then process each sequences by removing all non-letter characters and comparing them with a list of keywords (case-insensitive) to detect sequences that are more interesting than others. Before writing each string to the rule Fnord calculates a Levenshtein distance and skips sequences that are too similar to sequences that have already been integrated in the rule.
 
 # Usage
 
@@ -56,6 +56,12 @@ By using the `--yara` flag, Fnord generates an experimental YARA rule. During YA
       --include-padding   Include 0x00 and 0x20 in the extracted strings
       --debug             Debug output
 ```
+
+# Getting Started
+
+1. `git clone https://github.com/Neo23x0/Fnord.git` and `cd Fnord`
+2. `pip3 install -r ./requirements.txt`
+3. `python3 ./fnord.py --help`
 
 # Examples
 
