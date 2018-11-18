@@ -149,15 +149,18 @@ def print_most_common(seq_set, num, min_seq, max_seq, min_occ):
         if len(len_counter) < 1:
             continue
 
+        # Contents of each line in the table
         for b, c in len_counter.most_common(num):
             s_hex = binascii.hexlify(b)
             s_value = "(non ascii)"
-            s_formatted = ""
+            s_formatted = "hex"
             if is_printable(b):
                 replace_null = False
                 if is_wide_formatted(b):
                     s_formatted = "wide"
                     replace_null = True
+                else:
+                    s_formatted = "ascii"
                 s_value = replace_control_characters(b, replace_null=replace_null)
             e = entropy(b)
             seq_set_extended.append([length, c, s_value, s_formatted, s_hex, e])
