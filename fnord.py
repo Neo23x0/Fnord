@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 #
 # Fnord
 # Extracting code from scrambled code that could be used in signature based detection
