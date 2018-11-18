@@ -2,6 +2,30 @@
 
 Fnord is a pattern extractor for obfuscated code.
 
+# Description
+
+Fnord has two main functions:
+
+1. Extract byte sequences and create some statistics
+2. Use these statistics, combine length, number of occurrences, similarity and keywords to create a YARA rule
+
+# 1. Statistics
+
+Fnord processes the file with a sliding window of varying size to extract all sequences of with a minimum length `-m X` (default: 4) up to a maximum length `-x X` (default: 40). For each length, Fnord will present the most frequently occurring sequences `-t X` (default: 3) in a table.
+
+Each line in the table contains:
+
+- Length
+- Number of occurrences
+- Sequence (string)
+- Formatted (ascii/wide/hex)
+- Hex encoded form
+- Entropy
+
+# 2. YARA Rule Creation
+
+By using the `--yara` flag, Fnord generates an experimental YARA rule. During YARA rule creation it will calculate a score based in the length of the sequence and the number of occurrences (length * occurrences). It will then process each sequences by removing all non-letter characters and comparing them with a list of keywords (case-insensitive) to detect sequences that are more interesting than others. Before writing each string to the rule Fnord calculates a Levenshtein distance and skips sequences that are too similar to sequences that have already been integrated in the rule.  
+
 # Usage
 
 ```
