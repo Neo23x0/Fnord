@@ -28,7 +28,15 @@ By using the `--yara` flag, Fnord generates an experimental YARA rule. During YA
 
 ## Status
 
-[Experimental] Fnord was created a few days ago and I have tested it with a handful of samples. My guess is that I'll adjust the defaults in the coming weeks and add some more keywords, filters, scoring options. 
+[Experimental] Fnord was created a few days ago and I have tested it with a handful of samples. My guess is that I'll adjust the defaults in the coming weeks and add some more keywords, filters, scoring options.
+
+## Improve the Results
+
+If you've found obfuscated code in a sample, use a hex editor to extract the obfuscated section of the sample and save to a new file. Use that new file for the analysis.
+
+Play with the flags `-m`, `--yara-strings` and `-e`.
+
+Please send me samples that produce weak YARA rules that could be better.
 
 ## Usage
 
