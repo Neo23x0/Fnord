@@ -4,7 +4,7 @@
 # Extracting code from scrambled code that could be used in signature based detection
 
 __author__ = "Florian Roth"
-__version__ = "0.3"
+__version__ = "0.4"
 
 import argparse
 import math
@@ -23,7 +23,7 @@ rule gen_experimemtal_rule {
    strings: 
       %%%strings%%%
    condition:
-      %%%condition%%%
+      %%%magics%%%%%%condition%%%
 }
 """
 KEYWORDS = ['char', 'for', 'set', 'string', 'decode', 'encode', 'b64', 'base64', 'hex', 'compress', 'reverse', 'xor',
@@ -213,7 +213,25 @@ def is_similar(value, strings):
     return False
 
 
-def print_yara_rule(seq_set, yara_string_count=5, show_score=False, show_count=False, debug=False):
+def get_magic_condition(filename):
+    """
+    Generate a condition element that matches the exact header and footer of the file
+    :param data: the full file data blob
+    :return magic_condition: condition that can be used in YARA rules that matches magic header and footer of a file
+    """
+    magic_condition = ""
+    try:
+        with open(filename, 'rb') as fh:
+            data = fh.read()
+        head = binascii.hexlify(data[:4]).decode('utf-8')
+        foot = binascii.hexlify(data[-4:]).decode('utf-8')
+        magic_condition = "uint32be(0) == 0x%s and uint32be(filesize-4) == 0x%s and " % (head, foot)
+    except Exception as e:
+        traceback.print_exc()
+    return magic_condition
+
+
+def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=False, show_count=False, debug=False):
     """
     Generates an experimental YARA rule
     :param seq_set:
@@ -290,9 +308,10 @@ def print_yara_rule(seq_set, yara_string_count=5, show_score=False, show_count=F
         if c > yara_string_count:
             break
 
-    rule_value = RULE_TEMPLATE.replace(
-        '%%%strings%%%', "\n      ".join(string_content)).replace(
-        '%%%condition%%%', " and ".join(condition_content))
+    rule_value = RULE_TEMPLATE
+    rule_value = rule_value.replace('%%%strings%%%', "\n      ".join(string_content))
+    rule_value = rule_value.replace('%%%magics%%%', magic_condition)
+    rule_value = rule_value.replace('%%%condition%%%', " and ".join(condition_content))
 
     print(tabulate([[rule_value]], ["YARA Rule"], tablefmt="rst"))
 
@@ -302,10 +321,10 @@ if __name__ == '__main__':
     print("    ____                 __ ".ljust(80))
     print("   / __/__  ___  _______/ / ".ljust(80))
     print("  / _// _ \/ _ \/ __/ _  /  ".ljust(80))
-    print(" /_/ /_//_/\___/_/  \_,_/ Pattern Extractor ".ljust(80))
+    print(" /_/ /_//_/\___/_/  \_,_/ Pattern Extractor for Obfuscated Code".ljust(80))
     print(" v{0}, {1}                  ".format(__version__, __author__).ljust(80))
 
-    parser = argparse.ArgumentParser(description='Grimoire')
+    parser = argparse.ArgumentParser(description='Fnord - Pattern Extractor for Obfuscated Code')
     parser.add_argument('-f', help='File to process', metavar='file', default='')
     parser.add_argument('-m', help='Minimum sequence length', metavar='min', default=5)
     parser.add_argument('-x', help='Maximum sequence length', metavar='max', default=40)
@@ -314,6 +333,8 @@ if __name__ == '__main__':
     parser.add_argument('-e', help='Minimum entropy', metavar='min-entropy', default=1.5)
     parser.add_argument('--strings', action='store_true', default=False, help='Show strings only')
     parser.add_argument('--yara', action='store_true', default=False, help='Generate an experimental YARA rule')
+    parser.add_argument('--yara-exact', action='store_true', default=False,
+                        help='Add magic header and magic footer limitations to the rule')
     parser.add_argument('--yara-strings', help='Maximum sequence length', metavar='max', default=3)
     parser.add_argument('--show-score', action='store_true', default=False, help='Show score in comments of YARA rules')
     parser.add_argument('--show-count', action='store_true', default=False,
@@ -332,4 +353,7 @@ if __name__ == '__main__':
 
     # YARA
     if args.yara:
-        print_yara_rule(seq_set, int(args.yara_strings), args.show_score, args.show_count, args.debug)
+        magic_condition = ""
+        if args.yara_exact:
+            magic_condition = get_magic_condition(args.f)
+        print_yara_rule(seq_set, magic_condition, int(args.yara_strings), args.show_score, args.show_count, args.debug)
