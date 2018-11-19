@@ -82,6 +82,10 @@ python3 fnord.py -f ./test/wraeop.sct --yara --yara-strings 10
 ```
 
 ```
+python3 fnord.py -f ./test/vbs.txt --yara --show-score --show-count -t 1 -x 20
+```
+
+```
 python3 fnord.py -f ./test/inv-obf.txt --yara --show-score --show-count -t 1 --yara-strings 4 --yara-exact
 ```
 
