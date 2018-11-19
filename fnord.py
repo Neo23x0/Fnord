@@ -4,7 +4,7 @@
 # Extracting code from scrambled code that could be used in signature based detection
 
 __author__ = "Florian Roth"
-__version__ = "0.4"
+__version__ = "0.5"
 
 import argparse
 import math
@@ -228,6 +228,29 @@ def contains_keyword(b):
     return False
 
 
+def contains_keyword_uncommon_casing(s):
+    """
+    Checks if a sequence contains a special keyword if all non-letters are removed in a suspicious casing
+    :param b:
+    :return:
+    """
+    ascii_letters = set(string.ascii_letters)
+    try:
+        s_filtered = "".join(filter(lambda x: x in ascii_letters, s))
+        s_filtered_lower = s_filtered.lower()
+        keywords_contained = list(filter(lambda x: x.lower() in s_filtered_lower, KEYWORDS))
+        if len(keywords_contained) > 0:
+            for k in keywords_contained:
+                if k.lower() not in s_filtered and \
+                        k.upper() not in s_filtered and \
+                        k.title() not in s_filtered:
+                    return True
+            return False
+    except UnicodeDecodeError as e:
+        pass
+    return False
+
+
 def is_similar(value, strings):
     """
     Checks is a string is similar to one in a set of strings
@@ -321,10 +344,14 @@ def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=Fa
         if len(adds) > 0:
             add_value = " /* %s */" % (" ".join(adds))
         # Strings
-        if s["format"] == "hex":
-            string_content.append('$s%d = { %s }%s' % (c, s['value'], add_value))
-        else:
-            string_content.append('$s%d = "%s" %s%s' %(c, s['value'], s['format'], add_value))
+        keywords = []
+        if s["format"] != "hex":
+            keywords.append(s['format'])  # ascii/wide
+            if contains_keyword_uncommon_casing(s['value']):
+                keywords.append("nocase")
+        # Now compose the line
+        string_content.append('$s%d = "%s" %s%s' %(c, s['value'], " ".join(keywords), add_value))
+        # Add the line to the list
         included_strings.append(s['value'])
         # Conditions
         occ = round(s['count'] / 2)
