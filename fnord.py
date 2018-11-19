@@ -48,8 +48,10 @@ def read_file(filename, seq_min, seq_max, min_entropy, include_padding=False, st
     for i in range(0, len(blob)):
         # cutting chunks
         for c in range (seq_min, seq_max):
+            # End of file data
             if (i+c) > len(blob):
                 continue
+            # Read a chunk
             chunk = blob[i:i+c]
             # Skip some chunks
             if exclude_chunk(chunk, min_entropy, include_padding, strings_only):
@@ -177,10 +179,36 @@ def calculate_score(b, c):
     :param c: count
     :return: score
     """
+    # Based on count and length
+    # limit the values
+    if c > 100:
+        c = 100
+    # Now calculate the score
     score = len(b) * c
+    # Does the sequence contain a certain keyword if you remove all non-letter characters from the sequence
     if contains_keyword(b):
-        score += 70
+        score = score * 3
+    # Does the sequence consist of structure characters only (non-payload)
+    if is_structure(b):
+        score = score * 3
     return score
+
+
+def is_structure(b):
+    """
+    Tries to evaluate the type of the the sequences - payload or structure - structure is more stable over various
+    samples that have been obfuscated with the same method
+    :param b:
+    :return:
+    """
+    r = re.compile(r'^[!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~ 0-9]+$')
+    try:
+        if r.search(b.decode('utf-8')):
+            return True
+        return False
+    except UnicodeDecodeError as e:
+        pass
+    return False
 
 
 def contains_keyword(b):
