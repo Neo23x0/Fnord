@@ -27,7 +27,8 @@ rule gen_experimemtal_rule {
 }
 """
 KEYWORDS = ['char', 'for', 'set', 'string', 'decode', 'encode', 'b64', 'base64', 'hex', 'compress', 'reverse', 'xor',
-            'cmd', 'exe', 'powershell', 'shell', 'script', 'print']
+            'cmd', 'powershell', 'shell', 'script', 'print', 'temp', 'appdata', 'system32', 'each', 'certutil',
+            'msiexec', 'hidden']
 
 def read_file(filename, seq_min, seq_max, min_entropy, include_padding=False, strings_only=False):
     """
