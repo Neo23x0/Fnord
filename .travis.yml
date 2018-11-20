@@ -17,7 +17,7 @@ install:
   - ./bootstrap.sh
   - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=$YARA_DIR
   - make
-  - make install
+  - sudo make install
   - cd /home/travis/build/Neo23x0/Fnord/
 
 script:
@@ -25,14 +25,14 @@ script:
   - ls -lrt ./
   - ls -lrt ./yara/
   - ls -lrt /home/travis/build/Neo23x0/Fnord/yara/
-  - ./yara/yara --version
+  - yara --version
   - python fnord.py
   - python fnord.py -f ./test/launch-varplus.txt --noyara
   - ! cat fnord-rules.yar
   - python fnord.py -f ./test/vbs.txt --show-score --show-count
   - fgrep "(1* 2^0 )" fnord-rules.yar -c
   - egrep "WScript" fnord-rules.yar -c
-  - ./yara/yara -r fnord-rules.yar ./test
+  - yara -r fnord-rules.yar ./test
   - python fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-strings 4 --yara-exact
   - fgrep "^'^2^+^2^" fnord-rules.yar -c
   - fgrep "(^S^e^T ^ ^" fnord-rules.yar -c
@@ -41,7 +41,7 @@ script:
   - python fnord.py -f ./test/wraeop.sct
   - fgrep ",101," fnord-rules.yar -c
   - fgrep "temp%/VRE" fnord-rules.yar -c
-  - ./yara/yara -r fnord-rules.yar ./test
+  - yara -r fnord-rules.yar ./test
 
 notifications:
   email:
