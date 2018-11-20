@@ -4,10 +4,12 @@
 # Extracting code from scrambled code that could be used in signature based detection
 
 __author__ = "Florian Roth"
-__version__ = "0.5"
+__version__ = "0.6"
 
+import sys
 import argparse
 import math
+import datetime
 import binascii
 import traceback
 import string
@@ -19,16 +21,34 @@ from tabulate import tabulate
 # Presets
 PADDING_BYTES = [0x00, 0x20, 0x0a, 0x0d]  # null byte, space, new line, carriage return
 RULE_TEMPLATE = """
-rule gen_experimemtal_rule {
+rule gen_experimemtal_rule_%%%settings%%% {
+   meta: 
+      description = "%%%description%%%"
+      date = "%%%date%%%"
+      author = "%%%author%%%"
    strings: 
       %%%strings%%%
    condition:
       %%%magics%%%%%%condition%%%
 }
 """
+
 KEYWORDS = ['char', 'for', 'set', 'string', 'decode', 'encode', 'b64', 'base64', 'hex', 'compress', 'reverse', 'xor',
             'cmd', 'powershell', 'shell', 'script', 'print', 'temp', 'appdata', 'system32', 'each', 'certutil',
             'msiexec', 'hidden']
+
+# Presets for the different YARA rule variants
+# s = allowed similarity
+# k = keyword score multiplier
+# r = structure code multiplier (only non-letter characters)
+# c = count limiter (limit the influence of a sequence occurrence on the score)
+PRESETS = [{"s": 0.8, "k": 2, "r": 1, "c": 50},
+           {"s": 1, "k": 1, "r": 1, "c": 20},
+           {"s": 2, "k": 5, "r": 2, "c": 10},
+           {"s": 1, "k": 1, "r": 5, "c": 5}]
+
+RE_STRUCTURE = re.compile("^[%s\s0-9]+$" % re.escape(string.punctuation))
+
 
 def read_file(filename, seq_min, seq_max, min_entropy, include_padding=False, strings_only=False):
     """
@@ -168,29 +188,35 @@ def print_most_common(seq_set, num, min_seq, max_seq, min_occ):
             e = entropy(b)
             seq_set_extended.append([length, c, s_value, s_formatted, s_hex, e])
 
+    tabulate.PRESERVE_WHITESPACE = True
     print(tabulate(seq_set_extended, ["Length", "Count", "Sequence", "Formatted", "Hex Sequence", "Entropy"],
                    tablefmt="fancy_grid"))
 
 
-def calculate_score(b, c):
+def calculate_score(b, c, settings):
     """
     Calculate a score for a byte / sequence combination
     :param b: byte sequence
     :param c: count
+    :param settings:
     :return: score
     """
     # Based on count and length
     # limit the values
     if c > 100:
         c = 100
+    # Wide length / 2
+    div = 1
+    if is_wide_formatted(b):
+        div = 2
     # Now calculate the score
-    score = len(b) * c
+    score = ( len(b) / div ) * c
     # Does the sequence contain a certain keyword if you remove all non-letter characters from the sequence
     if contains_keyword(b):
-        score = score * 3
+        score = score * float(settings['k'])
     # Does the sequence consist of structure characters only (non-payload)
     if is_structure(b):
-        score = score * 3
+        score = score * float(settings['r'])
     return score
 
 
@@ -201,9 +227,9 @@ def is_structure(b):
     :param b:
     :return:
     """
-    r = re.compile(r'^[!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~ 0-9]+$')
     try:
-        if r.search(b.decode('utf-8')):
+        if RE_STRUCTURE.search(b.decode('utf-8')):
+            # print(b.decode('utf-8'), " Structure!")
             return True
         return False
     except UnicodeDecodeError as e:
@@ -251,16 +277,17 @@ def contains_keyword_uncommon_casing(s):
     return False
 
 
-def is_similar(value, strings):
+def is_similar(value, strings, settings):
     """
     Checks is a string is similar to one in a set of strings
     :param value:
     :param strings:
+    :param settings:
     :return:
     """
     levenshtein = Levenshtein()
     for s in strings:
-        if levenshtein.distance(value, s) < (len(value)/2):
+        if levenshtein.distance(value, s) < (len(value)/settings["s"]):
             return True
     return False
 
@@ -283,7 +310,8 @@ def get_magic_condition(filename):
     return magic_condition
 
 
-def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=False, show_count=False, debug=False):
+def get_yara_rule(seq_set, magic_condition, settings,
+                    yara_string_count, show_score=False, show_count=False, debug=False):
     """
     Generates an experimental YARA rule
     :param seq_set:
@@ -294,13 +322,15 @@ def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=Fa
     """
     strings = []
 
-    if debug:
-        print("[D] String preperations ...")
     for b, c in seq_set.items():
+        # Count limiter
+        count = c
+        if count > settings["c"]:
+            count = settings["c"]
         # Calculate a score
-        score = calculate_score(b, c)
+        score = calculate_score(b, count, settings)
         # By default - use the hex value
-        value = binascii.hexlify(b)
+        value = binascii.hexlify(b).decode("utf-8")
         # Evaluate the formatting - if printable / if ascii/wide
         s_formatted = "hex"
         if is_printable(b):
@@ -322,7 +352,7 @@ def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=Fa
 
     # Sort the contents based on the score
     if debug:
-        print("[D] First sort ...")
+        print("[+] Sorting %d strings ... " % len(strings))
     strings_sorted = sorted(strings, key=lambda k: k['score'], reverse=True)
 
     # Generate the string values
@@ -332,7 +362,7 @@ def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=Fa
     c = 1
     for s in strings_sorted:
         # Too similar to the others
-        if is_similar(s['value'], included_strings):
+        if is_similar(s['value'], included_strings, settings):
             continue
         # Additional info
         adds = []
@@ -354,7 +384,7 @@ def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=Fa
         # Add the line to the list
         included_strings.append(s['value'])
         # Conditions
-        occ = round(s['count'] / 2)
+        occ = round(s["count"] / 2)
         if occ < 2:
             condition_content.append("$s%d" % c)
         else:
@@ -365,12 +395,16 @@ def print_yara_rule(seq_set, magic_condition, yara_string_count=5, show_score=Fa
             break
 
     rule_value = RULE_TEMPLATE
+    rule_value = rule_value.replace('%%%settings%%%', "".join(filter(lambda x: x in set(string.ascii_letters + string.digits), str(settings))))
+    rule_value = rule_value.replace('%%%description%%%',
+                                    "Fnord rule generated with settings %s" % settings)
+    rule_value = rule_value.replace('%%%date%%%', str(datetime.datetime.now().strftime("%Y-%m-%d")))
+    rule_value = rule_value.replace('%%%author%%%', args.author)
     rule_value = rule_value.replace('%%%strings%%%', "\n      ".join(string_content))
     rule_value = rule_value.replace('%%%magics%%%', magic_condition)
     rule_value = rule_value.replace('%%%condition%%%', " and ".join(condition_content))
 
-    print(tabulate([[rule_value]], ["YARA Rule"], tablefmt="rst"))
-
+    return rule_value
 
 if __name__ == '__main__':
 
@@ -379,27 +413,67 @@ if __name__ == '__main__':
     print("  / _// _ \/ _ \/ __/ _  /  ".ljust(80))
     print(" /_/ /_//_/\___/_/  \_,_/ Pattern Extractor for Obfuscated Code".ljust(80))
     print(" v{0}, {1}                  ".format(__version__, __author__).ljust(80))
+    print(" ".ljust(80))
 
     parser = argparse.ArgumentParser(description='Fnord - Pattern Extractor for Obfuscated Code')
     parser.add_argument('-f', help='File to process', metavar='file', default='')
     parser.add_argument('-m', help='Minimum sequence length', metavar='min', default=5)
-    parser.add_argument('-x', help='Maximum sequence length', metavar='max', default=40)
+    parser.add_argument('-x', help='Maximum sequence length', metavar='max', default=15)
     parser.add_argument('-t', help='Number of items in the Top x list', metavar='top', default=3)
     parser.add_argument('-n', help='Minimum number of occurrences to show', metavar='min-occ', default=3)
     parser.add_argument('-e', help='Minimum entropy', metavar='min-entropy', default=1.5)
     parser.add_argument('--strings', action='store_true', default=False, help='Show strings only')
-    parser.add_argument('--yara', action='store_true', default=False, help='Generate an experimental YARA rule')
-    parser.add_argument('--yara-exact', action='store_true', default=False,
-                        help='Add magic header and magic footer limitations to the rule')
-    parser.add_argument('--yara-strings', help='Maximum sequence length', metavar='max', default=3)
-    parser.add_argument('--show-score', action='store_true', default=False, help='Show score in comments of YARA rules')
-    parser.add_argument('--show-count', action='store_true', default=False,
-                        help='Show count in sample in comments of YARA rules')
     parser.add_argument('--include-padding', action='store_true', default=False,
                         help='Include 0x00 and 0x20 in the extracted strings')
     parser.add_argument('--debug', action='store_true', default=False, help='Debug output')
 
+    group_yara = parser.add_argument_group('YARA Rule Creation')
+    group_yara.add_argument('--noyara', action='store_true', default=False,
+                            help='Do not generate an experimental YARA rule')
+
+    # Rule Generation Settings
+    default_similarity = float(1.5)
+    default_keyword_multiplier = float(2)
+    default_structure_multiplier = float(2)
+    default_count_limiter = int(20)
+    group_yara.add_argument('-s', help='Allowed similarity (use values between 0.1=low and 10=high, default=%0.1f)' %
+                                       default_similarity,
+                            metavar='similarity', default=default_similarity)
+    group_yara.add_argument('-k', help='Keywords multiplier (multiplies score of sequences if keyword is found) '
+                                       '(best use values between 1 and 5, default=%0.1f)' % default_keyword_multiplier,
+                            metavar='keywords-multiplier',
+                            default=default_keyword_multiplier)
+    group_yara.add_argument('-r', help='Structure multiplier (multiplies score of sequences if it is identified as '
+                                       'code structure and not payload) '
+                                       '(best use values between 1 and 5, default=%0.1f)' % default_structure_multiplier,
+                            metavar='structure-multiplier',
+                            default=default_structure_multiplier)
+    group_yara.add_argument('-c', help='Count limiter (limts the impact of the count by capping it at a certain amount) '
+                                       '(best use values between 5 and 100, default=%d)' % default_count_limiter,
+                            metavar='count-limiter',
+                            default=default_count_limiter)
+
+    group_yara.add_argument('--yara-exact', action='store_true', default=False,
+                        help='Add magic header and magic footer limitations to the rule')
+    group_yara.add_argument('--yara-strings', help='Maximum sequence length', metavar='max', default=4)
+    group_yara.add_argument('--show-score', action='store_true', default=False,
+                            help='Show score in comments of YARA rules')
+    group_yara.add_argument('--show-count', action='store_true', default=False,
+                        help='Show count in sample in comments of YARA rules')
+    group_yara.add_argument('--author', help='YARA rule author', metavar='author',
+                            default="Fnord %s" % __version__)
+
+    # Obsolete
+    group_yara.add_argument('--yara', action='store_true', default=False,
+                            help=argparse.SUPPRESS)
+
     args = parser.parse_args()
+
+    # Errors
+    if args.yara:
+        print("[E] The --yara flag has been deprecated in version 0.6 as it has become the default. Use --noyara if "
+              "you want to disable the YARA rule output.")
+        sys.exit(1)
 
     # Read sequences
     seq_set = read_file(args.f, int(args.m), int(args.x), int(args.e),
@@ -408,8 +482,40 @@ if __name__ == '__main__':
     print_most_common(seq_set, int(args.t), int(args.m), int(args.x), int(args.n))
 
     # YARA
-    if args.yara:
+    if not args.noyara:
+
+        # Magic condition (--yara-exact)
         magic_condition = ""
         if args.yara_exact:
             magic_condition = get_magic_condition(args.f)
-        print_yara_rule(seq_set, magic_condition, int(args.yara_strings), args.show_score, args.show_count, args.debug)
+
+        # Rules list
+        rules = []
+
+        # Configs for YARA rule generations
+        settings = PRESETS
+
+        # If user has set values other than the presets, use his settings
+        if float(args.s) != default_similarity or \
+                float(args.k) != default_keyword_multiplier or \
+                float(args.r) != default_structure_multiplier or \
+                int(args.c) != default_count_limiter:
+                # user defined settings
+                settings = [{"s": float(args.s), "k": float(args.k), "r": float(args.r), "c": int(args.c)}]
+
+        # Loop through the configs
+        print("Generating YARA rule with the following settings")
+        print("Number of strings to include in the rule (--yara-strings): %d" % int(args.yara_strings))
+        print("Add magic header anf footer expression (--yara-exact): %s" % str(args.yara_exact))
+        print("Maximum considered sequence length (-x) [reduce to accelerate]: %d" % int(args.x))
+        for c, config in enumerate(settings):
+            print("Rule %d: Allowed similarity (-s): %0.1f Keyword multiplier (-k): %0.1f "
+                  "Structure Multiplier (-r): %0.1f Count Limiter (-c): %d" %
+                  (c+1, config["s"], config["k"], config["r"], config["c"]))
+
+            rules.append([get_yara_rule(seq_set, magic_condition,
+                                 yara_string_count=int(args.yara_strings),
+                                 settings=config,
+                                 show_score=args.show_score, show_count=args.show_count,
+                                 debug=args.debug)])
+        print(tabulate(rules, ["YARA Rules"], tablefmt="rst"))

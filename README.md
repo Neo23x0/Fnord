@@ -24,7 +24,7 @@ Each line in the table contains:
 
 ## 2. YARA Rule Creation
 
-By using the `--yara` flag, Fnord generates an experimental YARA rule. During YARA rule creation it will calculate a score based in the length of the sequence and the number of occurrences (length * occurrences). It will then process each sequences by removing all non-letter characters and comparing them with a list of keywords (case-insensitive) to detect sequences that are more interesting than others. Before writing each string to the rule Fnord calculates a Levenshtein distance and skips sequences that are too similar to sequences that have already been integrated in the rule.
+Fnord also generates an experimental YARA rule. During YARA rule creation it will calculate a score based in the length of the sequence and the number of occurrences (length * occurrences). It will then process each sequences by removing all non-letter characters and comparing them with a list of keywords (case-insensitive) to detect sequences that are more interesting than others. Before writing each string to the rule Fnord calculates a Levenshtein distance and skips sequences that are too similar to sequences that have already been integrated in the rule.
 
 ## Status
 
@@ -34,7 +34,7 @@ By using the `--yara` flag, Fnord generates an experimental YARA rule. During YA
 
 If you've found obfuscated code in a sample, use a hex editor to extract the obfuscated section of the sample and save to a new file. Use that new file for the analysis.
 
-Play with the flags `-m`, `--yara-strings` and `-e`.
+Play with the flags `-s`, `-k, `-r`, `--yara-strings`, `-m` and `-e`.
 
 Please send me samples that produce weak YARA rules that could be better.
 
@@ -44,29 +44,46 @@ Please send me samples that produce weak YARA rules that could be better.
         ____                 __
        / __/__  ___  _______/ /
       / _// _ \/ _ \/ __/ _  /
-     /_/ /_//_/\___/_/  \_,_/ Pattern Extractor
-     v0.3, Florian Roth
-    usage: fnord.py [-h] [-f file] [-m min] [-x max] [-t top] [-n min-occ]
-                    [-e min-entropy] [--strings] [--yara] [--yara-strings max]
-                    [--show-score] [--show-count] [--include-padding] [--debug]
+     /_/ /_//_/\___/_/  \_,_/ Pattern Extractor for Obfuscated Code
+     v0.6, Florian Roth
 
-    Grimoire
+    usage: fnord.py [-h] [-f file] [-m min] [-x max] [-t top] [-n min-occ]
+                    [-e min-entropy] [--strings] [--include-padding] [--debug]
+                    [--noyara] [-s similarity] [-k keywords-multiplier]
+                    [-r structure-multiplier] [--yara-exact] [--yara-strings max]
+                    [--show-score] [--show-count]
+
+    Fnord - Pattern Extractor for Obfuscated Code
 
     optional arguments:
-      -h, --help          show this help message and exit
-      -f file             File to process
-      -m min              Minimum sequence length
-      -x max              Maximum sequence length
-      -t top              Number of items in the Top x list
-      -n min-occ          Minimum number of occurrences to show
-      -e min-entropy      Minimum entropy
-      --strings           Show strings only
-      --yara              Generate an experimental YARA rule
-      --yara-strings max  Maximum sequence length
-      --show-score        Show score in comments of YARA rules
-      --show-count        Show count in sample in comments of YARA rules
-      --include-padding   Include 0x00 and 0x20 in the extracted strings
-      --debug             Debug output
+      -h, --help            show this help message and exit
+      -f file               File to process
+      -m min                Minimum sequence length
+      -x max                Maximum sequence length
+      -t top                Number of items in the Top x list
+      -n min-occ            Minimum number of occurrences to show
+      -e min-entropy        Minimum entropy
+      --strings             Show strings only
+      --include-padding     Include 0x00 and 0x20 in the extracted strings
+      --debug               Debug output
+
+    YARA Rule Creation:
+      --noyara              Do not generate an experimental YARA rule
+      -s similarity         Allowed similarity (use values between 0.1=low and
+                            10=high, default=0.5)
+      -k keywords-multiplier
+                            Keywords multiplier (multiplies score of sequences if
+                            keyword is found) (best use values between 1 and 5,
+                            default=2)
+      -r structure-multiplier
+                            Structure multiplier (multiplies score of sequences if
+                            it is identified as code structure and not payload)
+                            (best use values between 1 and 5, default=3)
+      --yara-exact          Add magic header and magic footer limitations to the
+                            rule
+      --yara-strings max    Maximum sequence length
+      --show-score          Show score in comments of YARA rules
+      --show-count          Show count in sample in comments of YARA rules
 ```
 
 ## Getting Started
@@ -78,23 +95,15 @@ Please send me samples that produce weak YARA rules that could be better.
 ## Examples
 
 ```
-python3 fnord.py -f ./test/wraeop.sct --yara --yara-strings 10
+python3 fnord.py -f ./test/wraeop.sct --yara-strings 10
 ```
 
 ```
-python3 fnord.py -f ./test/vbs.txt --yara --show-score --show-count -t 1 -x 20
+python3 fnord.py -f ./test/vbs.txt --show-score --show-count -t 1 -x 20
 ```
 
 ```
-python3 fnord.py -f ./test/inv-obf.txt --yara --show-score --show-count -t 1 --yara-strings 4 --yara-exact
-```
-
-```
-python3 fnord.py -f ./test/bash-obfusc.txt --yara --show-score --show-count --yara-strings 10 -t 2
-```
-
-```
-python3 fnord.py -f ./test/launch-varplus.txt --yara --show-score --show-count --yara-strings 10 -t 2
+python3 fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-strings 4 --yara-exact
 ```
 
 ## Screenshots
