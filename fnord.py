@@ -462,6 +462,7 @@ if __name__ == '__main__':
                         help='Show count in sample in comments of YARA rules')
     group_yara.add_argument('--author', help='YARA rule author', metavar='author',
                             default="Fnord %s" % __version__)
+    group_yara.add_argument('-o', help='Output', metavar='yara-output', default="./fnord-rules.yar")
 
     # Obsolete
     group_yara.add_argument('--yara', action='store_true', default=False,
@@ -491,6 +492,7 @@ if __name__ == '__main__':
 
         # Rules list
         rules = []
+        rules_table = []
 
         # Configs for YARA rule generations
         settings = PRESETS
@@ -513,9 +515,15 @@ if __name__ == '__main__':
                   "Structure Multiplier (-r): %0.1f Count Limiter (-c): %d" %
                   (c+1, config["s"], config["k"], config["r"], config["c"]))
 
-            rules.append([get_yara_rule(seq_set, magic_condition,
-                                 yara_string_count=int(args.yara_strings),
-                                 settings=config,
-                                 show_score=args.show_score, show_count=args.show_count,
-                                 debug=args.debug)])
-        print(tabulate(rules, ["YARA Rules"], tablefmt="rst"))
+            rule_value = get_yara_rule(seq_set, magic_condition,
+                                              yara_string_count=int(args.yara_strings),
+                                              settings=config,
+                                              show_score=args.show_score, show_count=args.show_count,
+                                              debug=args.debug)
+            rules.append(rule_value)
+            rules_table.append([rule_value])
+
+        print(tabulate(rules_table, ["YARA Rules"], tablefmt="rst"))
+
+        with open(args.o, "w") as fh:
+            fh.write("\n".join(rules))
