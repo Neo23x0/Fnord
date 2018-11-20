@@ -1,0 +1,16 @@
+language: python
+python:
+  - 3.6
+cache: pip
+install:
+  - pip install -r requirements.txt
+
+script:
+  - python fnord.py -f ./test/vbs.txt --show-score --show-count
+
+notifications:
+  email:
+    recipients:
+      - venom14@gmail.com
+    on_success: always
+    on_failure: always

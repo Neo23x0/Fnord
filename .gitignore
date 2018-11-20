@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 venv
 virus_doc
+fnord-rules.yar
