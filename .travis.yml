@@ -17,8 +17,11 @@ install:
   - ./bootstrap.sh
   - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=$YARA_DIR
   - make
+  - cd ..
+  - echo "$PWD"
 
 script:
+  - echo "$PWD"
   - ./yara/yara --version
   - python fnord.py
   - python fnord.py -f ./test/launch-varplus.txt --noyara
