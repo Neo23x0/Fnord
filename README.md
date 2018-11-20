@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Neo23x0/fnord.svg?branch=master)](https://travis-ci.org/Neo23x0/fnord)
+
 # Fnord
 
 Fnord is a pattern extractor for obfuscated code
