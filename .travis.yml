@@ -10,11 +10,12 @@ install:
   - pip install -r requirements.txt
   - mkdir temp
   - mkdir yara
+  - set YARA_DIR="$PWD"/yara
   - wget -P ./temp https://github.com/VirusTotal/yara/archive/v3.6.3.tar.gz
   - tar -xvzf ./temp/v3.6.3.tar.gz -C ./temp/
   - cd ./temp/yara-3.6.3
   - ./bootstrap.sh
-  - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=../yara
+  - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=$YARA_DIR
   - make
   - make install
 
