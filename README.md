@@ -50,8 +50,9 @@ Please send me samples that produce weak YARA rules that could be better.
     usage: fnord.py [-h] [-f file] [-m min] [-x max] [-t top] [-n min-occ]
                     [-e min-entropy] [--strings] [--include-padding] [--debug]
                     [--noyara] [-s similarity] [-k keywords-multiplier]
-                    [-r structure-multiplier] [--yara-exact] [--yara-strings max]
-                    [--show-score] [--show-count]
+                    [-r structure-multiplier] [-c count-limiter] [--yara-exact]
+                    [--yara-strings max] [--show-score] [--show-count]
+                    [--author author]
 
     Fnord - Pattern Extractor for Obfuscated Code
 
@@ -70,20 +71,24 @@ Please send me samples that produce weak YARA rules that could be better.
     YARA Rule Creation:
       --noyara              Do not generate an experimental YARA rule
       -s similarity         Allowed similarity (use values between 0.1=low and
-                            10=high, default=0.5)
+                            10=high, default=1.5)
       -k keywords-multiplier
                             Keywords multiplier (multiplies score of sequences if
                             keyword is found) (best use values between 1 and 5,
-                            default=2)
+                            default=2.0)
       -r structure-multiplier
                             Structure multiplier (multiplies score of sequences if
                             it is identified as code structure and not payload)
-                            (best use values between 1 and 5, default=3)
+                            (best use values between 1 and 5, default=2.0)
+      -c count-limiter      Count limiter (limts the impact of the count by
+                            capping it at a certain amount) (best use values
+                            between 5 and 100, default=20)
       --yara-exact          Add magic header and magic footer limitations to the
                             rule
       --yara-strings max    Maximum sequence length
       --show-score          Show score in comments of YARA rules
       --show-count          Show count in sample in comments of YARA rules
+      --author author       YARA rule author
 ```
 
 ## Getting Started
