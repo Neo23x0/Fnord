@@ -7,6 +7,7 @@ cache: pip
 before_install:
   - sudo apt-get update
 install:
+  - set CD="$PWD"
   - pip install -r requirements.txt
   - mkdir temp
   - mkdir yara
@@ -17,7 +18,7 @@ install:
   - ./bootstrap.sh
   - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=$YARA_DIR
   - make
-  - cd ..
+  - cd $CD
   - echo "$PWD"
 
 script:
