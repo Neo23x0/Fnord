@@ -6,9 +6,17 @@ python:
 cache: pip
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y yara
 install:
   - pip install -r requirements.txt
+  - mkdir temp
+  - mkdir yara
+  - wget -P ./temp https://github.com/VirusTotal/yara/archive/v3.6.3.tar.gz
+  - tar -xvzf ./temp/v3.6.3.tar.gz -C ./temp/
+  - cd ./temp/yara-3.6.3
+  - ./bootstrap.sh
+  - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=../yara
+  - make
+  - make install
 
 script:
   - yara --version
@@ -19,7 +27,7 @@ script:
   - fgrep "(1* 2^0 )" fnord-rules.yar -c
   - egrep "WScript" fnord-rules.yar -c
   - yara -r fnord-rules.yar ./test
-  - fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-strings 4 --yara-exact
+  - python fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-strings 4 --yara-exact
   - fgrep "^'^2^+^2^" fnord-rules.yar -c
   - fgrep "(^S^e^T ^ ^" fnord-rules.yar -c
   - fgrep " ( ; ; ; (" fnord-rules.yar -c
