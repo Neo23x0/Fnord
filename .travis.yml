@@ -17,10 +17,14 @@ install:
   - ./bootstrap.sh
   - ./configure --disable-shared --disable-magic --disable-cuckoo --prefix=$YARA_DIR
   - make
+  - make install
   - cd /home/travis/build/Neo23x0/Fnord/
 
 script:
   - echo "$PWD"
+  - ls -lrt ./
+  - ls -lrt ./yara/
+  - ls -lrt /home/travis/build/Neo23x0/Fnord/yara/
   - ./yara/yara --version
   - python fnord.py
   - python fnord.py -f ./test/launch-varplus.txt --noyara
