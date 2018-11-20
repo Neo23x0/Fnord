@@ -11,19 +11,23 @@ install:
   - pip install -r requirements.txt
 
 script:
+  - yara --version
   - python fnord.py
   - python fnord.py -f ./test/launch-varplus.txt --noyara
   - ! cat fnord-rules.yar
   - python fnord.py -f ./test/vbs.txt --show-score --show-count
-  - egrep -F "(1* 2^0 )" fnord-rules.yar -c
+  - fgrep "(1* 2^0 )" fnord-rules.yar -c
   - egrep "WScript" fnord-rules.yar -c
+  - yara -r fnord-rules.yar ./test
   - fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-strings 4 --yara-exact
-  - egrep -F "^'^2^+^2^" fnord-rules.yar -c
-  - egrep -F "(^S^e^T ^ ^" fnord-rules.yar -c
-  - egrep -F " ( ; ; ; (" fnord-rules.yar -c
+  - fgrep "^'^2^+^2^" fnord-rules.yar -c
+  - fgrep "(^S^e^T ^ ^" fnord-rules.yar -c
+  - fgrep " ( ; ; ; (" fnord-rules.yar -c
+  - yara -r fnord-rules.yar ./test
   - python fnord.py -f ./test/wraeop.sct
-  - egrep -F ",101," fnord-rules.yar -c
-  - egrep -F "temp%/VRE" fnord-rules.yar -c
+  - fgrep ",101," fnord-rules.yar -c
+  - fgrep "temp%/VRE" fnord-rules.yar -c
+  - yara -r fnord-rules.yar ./test
 
 notifications:
   email:
