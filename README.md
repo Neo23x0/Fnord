@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Neo23x0/fnord.svg?branch=master)](https://travis-ci.org/Neo23x0/fnord)
+[![Build Status](https://travis-ci.org/Neo23x0/Fnord.svg?branch=master)](https://travis-ci.org/Neo23x0/Fnord)
 
 # Fnord
 
