@@ -310,6 +310,15 @@ def get_magic_condition(filename):
     return magic_condition
 
 
+def replace_illegal_escape_sequences(s):
+    """
+    Replace illegal escape sequences in YARA
+    :param s:
+    :return:
+    """
+    return s.replace(r'\r', r'\x0d')
+
+
 def get_yara_rule(seq_set, magic_condition, settings,
                     yara_string_count, show_score=False, show_count=False, debug=False):
     """
@@ -380,7 +389,8 @@ def get_yara_rule(seq_set, magic_condition, settings,
             if contains_keyword_uncommon_casing(s['value']):
                 keywords.append("nocase")
         # Now compose the line
-        string_content.append('$s%d = "%s" %s%s' %(c, s['value'], " ".join(keywords), add_value))
+        string_content.append('$s%d = "%s" %s%s' %(c, replace_illegal_escape_sequences(s['value']),
+                                                   " ".join(keywords), add_value))
         # Add the line to the list
         included_strings.append(s['value'])
         # Conditions
@@ -475,6 +485,9 @@ if __name__ == '__main__':
         print("[E] The --yara flag has been deprecated in version 0.6 as it has become the default. Use --noyara if "
               "you want to disable the YARA rule output.")
         sys.exit(1)
+    if not args.f:
+        parser.print_help()
+        sys.exit(0)
 
     # Read sequences
     seq_set = read_file(args.f, int(args.m), int(args.x), int(args.e),
