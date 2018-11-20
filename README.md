@@ -112,6 +112,8 @@ python3 fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-str
 
 ![Fnord Screenshot](https://github.com/Neo23x0/Fnord/blob/master/screens/fnord2.png "Fnord in action")
 
+![Fnord Screenshot](https://github.com/Neo23x0/Fnord/blob/master/screens/fnord3.png "Fnord in action")
+
 ## FAQs
 
 ### Why didn't you integrate Fnord in yarGen?
