@@ -310,13 +310,14 @@ def get_magic_condition(filename):
     return magic_condition
 
 
-def replace_illegal_escape_sequences(s):
+def prepare_string(s):
     """
     Replace illegal escape sequences in YARA
     :param s:
     :return:
     """
-    return s.replace(r'\r', r'\x0d')
+    new_s = s.replace(r'\r', r'\x0d').replace('"', r'\"')
+    return new_s
 
 
 def get_yara_rule(seq_set, magic_condition, settings,
@@ -389,7 +390,7 @@ def get_yara_rule(seq_set, magic_condition, settings,
             if contains_keyword_uncommon_casing(s['value']):
                 keywords.append("nocase")
         # Now compose the line
-        string_content.append('$s%d = "%s" %s%s' %(c, replace_illegal_escape_sequences(s['value']),
+        string_content.append('$s%d = "%s" %s%s' %(c, prepare_string(s['value']),
                                                    " ".join(keywords), add_value))
         # Add the line to the list
         included_strings.append(s['value'])
