@@ -4,7 +4,7 @@
 # Extracting code from scrambled code that could be used in signature based detection
 
 __author__ = "Florian Roth"
-__version__ = "0.6"
+__version__ = "0.7"
 
 import sys
 import argparse
@@ -14,7 +14,7 @@ import binascii
 import traceback
 import string
 import re
-from similarity.levenshtein import Levenshtein
+from Levenshtein import distance as levenshtein_distance
 from collections import Counter
 from tabulate import tabulate
 
@@ -285,9 +285,8 @@ def is_similar(value, strings, settings):
     :param settings:
     :return:
     """
-    levenshtein = Levenshtein()
     for s in strings:
-        if levenshtein.distance(value, s) < (len(value)/settings["s"]):
+        if levenshtein_distance(value, s) < (len(value)/settings["s"]):
             return True
     return False
 
