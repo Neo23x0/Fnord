@@ -47,7 +47,7 @@ Please send me samples that produce weak YARA rules that could be better.
        / __/__  ___  _______/ /
       / _// _ \/ _ \/ __/ _  /
      /_/ /_//_/\___/_/  \_,_/ Pattern Extractor for Obfuscated Code
-     v0.6, Florian Roth
+     v0.7, Florian Roth
 
     usage: fnord.py [-h] [-f file] [-m min] [-x max] [-t top] [-n min-occ]
                     [-e min-entropy] [--strings] [--include-padding] [--debug]
@@ -120,6 +120,10 @@ python3 fnord.py -f ./test/inv-obf.txt --show-score --show-count -t 1 --yara-str
 ![Fnord Screenshot](https://github.com/Neo23x0/Fnord/blob/master/screens/fnord2.png "Fnord in action")
 
 ![Fnord Screenshot](https://github.com/Neo23x0/Fnord/blob/master/screens/fnord3.png "Fnord in action")
+
+## Warning
+
+The folder `./test` contains scripts that are malicious and may be detected by your local Antivirus scanner. They don't harm your system as long as you don't run them.
 
 ## FAQs
 
