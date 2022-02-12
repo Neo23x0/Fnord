@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Neo23x0/Fnord.svg?branch=master)](https://travis-ci.org/Neo23x0/Fnord)
+[![Build Status](https://travis-ci.org/Neo23x0/Fnord.svg?branch=master)](https://travis-ci.org/Neo23x0/Fnord) [![Actively Maintained](https://img.shields.io/badge/Maintenance%20Level-Actively%20Maintained-green.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
 
 # Fnord
 
